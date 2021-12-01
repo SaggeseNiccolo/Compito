@@ -45,6 +45,7 @@ public class Server {
                 }
                 numeroEstratto = Integer.parseInt(stringaRicevuta);
                 inserisci(numeroEstratto);
+                Collections.sort(estratti); //ordina i numeri estratti in ordine crescente
                 out.writeBytes(numeriEstratti());
                 if (controlloVittoria()) {
                     out.writeBytes("VITTORIA!");
