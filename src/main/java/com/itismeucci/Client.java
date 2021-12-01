@@ -9,17 +9,18 @@ public class Client {
     Socket mysocket;
     BufferedReader keyboard;
     String userString;
-    String stringFromServer;
-    DataOutputStream outToServer;
-    BufferedReader inFromServer;
+    DataOutputStream out;
+    BufferedReader in;
+    ClientListener listener;
 
     public Socket connetti() {
-        System.out.println("2 CLIENT partito in esecuzione...");
+        System.out.println("Client partito");
         try {
             keyboard = new BufferedReader(new InputStreamReader(System.in));
             mysocket = new Socket(serverName, serverPort);
-            outToServer = new DataOutputStream(mysocket.getOutputStream());
-            inFromServer = new BufferedReader(new InputStreamReader(mysocket.getInputStream()));
+            out = new DataOutputStream(mysocket.getOutputStream());
+            in = new BufferedReader(new InputStreamReader(mysocket.getInputStream()));
+            listener = new ClientListener(mysocket);
         } catch (UnknownHostException e) {
             System.err.println("Host sconosciuto");
         } catch (Exception e) {
@@ -32,13 +33,14 @@ public class Client {
 
     public void comunica() {
         try {
-            System.out.println("4... inserisci la stringa da trasmettere al server:" + "\n");
-            userString = keyboard.readLine();
-            System.out.println("5 ... invio la stringa al server e attendo ...");
-            outToServer.writeBytes(userString + '\n');
-            stringFromServer = inFromServer.readLine();
-            System.out.println("8 ... risposta dal server " + '\n' + stringFromServer);
-            System.out.println("9 CLIENT: termina elaborazione e chiude connessione");
+            listener.start();
+            for (;;) {
+                userString = keyboard.readLine();
+                out.writeBytes(userString + "\n");
+                if (userString.equals("FINE")) {
+                    break;
+                }
+            }
             mysocket.close();
         } catch (Exception e) {
             System.out.println(e.getMessage());

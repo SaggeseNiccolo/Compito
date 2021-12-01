@@ -2,23 +2,25 @@ package com.itismeucci;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 public class Server {
     ServerSocket server;
     Socket client;
-    String receivedString;
-    String modifiedString;
-    BufferedReader inFromClient;
-    DataOutputStream outToClient;
+    String stringaRicevuta;
+    Integer numeroEstratto;
+    BufferedReader in;
+    DataOutputStream out;
+    ArrayList<Integer> estratti = new ArrayList<Integer>();
 
     public Socket attendi() {
         try {
-            System.out.println("1 SERVER partito in esecuzione ...");
+            System.out.println("Server partito");
             server = new ServerSocket(6789);
             client = server.accept();
             server.close();
-            inFromClient = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            outToClient = new DataOutputStream(client.getOutputStream());
+            in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            out = new DataOutputStream(client.getOutputStream());
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.out.println("Errore durante l'istanza del server !");
@@ -29,19 +31,77 @@ public class Server {
 
     public void comunica() {
         try {
-            System.out.println("3 benvenuto client, scrivi una frase e la trasformo in maisucolo. Attendo ...");
-            receivedString = inFromClient.readLine();
-            System.out.println("6 ricevuta la stringa dal client : " + receivedString);
-            modifiedString = receivedString.toUpperCase();
-            System.out.println("7 invio la stringa modificata al client ...");
-            outToClient.writeBytes(modifiedString + '\n');
-            System.out.println("9 SERVER: fine elaborazione ... buona notte!");
-            client.close();
+            // System.out.println("Connessione effettuata");
+            out.writeBytes("Connessione effettuata\n");
+
+            String a = "Dammi il numero estratto";
+            for (;;) {
+                out.writeBytes(a + "\n");
+                a = "Dammi il nuovo numero estratto";
+                stringaRicevuta = in.readLine();
+                if (stringaRicevuta.equals("FINE")) {
+                    client.close();
+                    break;
+                }
+                numeroEstratto = Integer.parseInt(stringaRicevuta);
+                inserisci(numeroEstratto);
+                out.writeBytes(numeriEstratti());
+                if (controlloVittoria()) {
+                    out.writeBytes("VITTORIA!");
+                    client.close();
+                    break;
+                }
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
             System.out.println("Errore durante la comunicazione col client!");
             System.exit(1);
         }
+    }
+
+    public void inserisci(Integer n) {
+        boolean inserito = false;
+
+        for (int i = 0; i < estratti.size(); i++) {
+            if (estratti.get(i).equals(n)) {
+                inserito = true;
+            }
+        }
+
+        if (inserito == true) {
+            try {
+                out.writeBytes("ERRORE: numero gia' presente\n");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            estratti.add(n);
+        }
+    }
+
+    public String numeriEstratti() {
+        String x = "numeri estratti: ";
+
+        for (int i = 0; i < estratti.size(); i++) {
+            x += " - " + estratti.get(i);
+        }
+        x += "\n";
+
+        return x;
+    }
+
+    public boolean controlloVittoria() {
+        if (estratti.size() > 4) {
+            for (int i = 0; i < estratti.size() - 4; i++) {
+                if (estratti.get(i).equals(estratti.get(i + 1) - 1)
+                        && estratti.get(i + 1).equals(estratti.get(i + 2) - 1)
+                        && estratti.get(i + 2).equals(estratti.get(i + 3) - 1)
+                        && estratti.get(i + 3).equals(estratti.get(i + 4) - 1)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public static void main(String[] args) {
