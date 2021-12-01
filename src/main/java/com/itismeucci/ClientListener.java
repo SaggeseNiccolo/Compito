@@ -19,12 +19,14 @@ public class ClientListener extends Thread {
     public void ascolta() throws IOException, InterruptedException {
         for (;;) {
             stringaRicevutaDalServer = inDalServer.readLine();
-            
-            Thread.sleep(500);
+
+            Thread.sleep(300);
 
             System.out.println(stringaRicevutaDalServer);
 
             if (stringaRicevutaDalServer.equals("FINE")) {
+                break;
+            } else if (stringaRicevutaDalServer.equals("VITTORIA!")) {
                 break;
             }
         }

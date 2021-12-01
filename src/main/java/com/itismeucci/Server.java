@@ -23,7 +23,7 @@ public class Server {
             out = new DataOutputStream(client.getOutputStream());
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            System.out.println("Errore durante l'istanza del server !");
+            System.out.println("Errore durante l'istanza del server!");
             System.exit(1);
         }
         return client;
@@ -45,7 +45,7 @@ public class Server {
                 }
                 numeroEstratto = Integer.parseInt(stringaRicevuta);
                 inserisci(numeroEstratto);
-                Collections.sort(estratti); //ordina i numeri estratti in ordine crescente
+                Collections.sort(estratti); // ordina i numeri estratti in ordine crescente
                 out.writeBytes(numeriEstratti());
                 if (controlloVittoria()) {
                     out.writeBytes("VITTORIA!");
@@ -84,7 +84,12 @@ public class Server {
         String x = "numeri estratti: ";
 
         for (int i = 0; i < estratti.size(); i++) {
-            x += " - " + estratti.get(i);
+            if (i == 0) {
+                x += estratti.get(i);
+            } else {
+                x += " - " + estratti.get(i);
+
+            }
         }
         x += "\n";
 
